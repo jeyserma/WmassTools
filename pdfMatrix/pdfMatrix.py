@@ -2,14 +2,12 @@ import os
 import argparse 
 import itertools
 import glob
+import socket
+import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-m", "--mode", type=str, help="Calculation mode", default="", choices=["histmaker", "combine", "fit", "fitth", "matrixl", "matrixh", "summary", "impacts", "lscan", "diagnostics", "matrixext", "check"])
 parser.add_argument("--fitType", type=str, help="Fit type", default="mw", choices=["mw", "wlike", "mw_agn"])
-
-parser.add_argument("--histmaker_dir", type=str, default="/scratch/submit/cms/jaeyserm/Analysis/new/", help='output folder for combine files')
-parser.add_argument("--combine_dir", type=str, default="/scratch/submit/cms/jaeyserm/CombineStudies/pdfMatrix/", help='output folder for combine files')
-parser.add_argument("--web_dir", type=str, default="/work/submit/jaeyserm/public_html/wmass/fits/pdfMatrix/", help='output folder for combine files')
 
 
 parser.add_argument("--inflationFactor", type=float, default=1.0, help="PDF inflation factor")
@@ -30,15 +28,64 @@ parser.add_argument("--fit_pdf_target", type=str, default="", help='Target PDF')
 parser.add_argument("-s", "--scan", action='store_true', help="Run likelihood scan")
 parser.add_argument("-x", "--xsec", action='store_true', help="Let xsec float")
 
+
+parser.add_argument("--submit", action='store_true', help="Submit jobs to condor")
+parser.add_argument("--resubmit", action='store_true', help="Resubmit failed jobs upon -m check")
+
+parser.add_argument("--queue", type=str, help="Condor priority", choices=["espresso", "microcentury", "longlunch", "workday", "tomorrow", "testmatch", "nextweek"], default="workday")
+parser.add_argument("--condor_priority", type=str, help="Condor priority", default="group_u_FCC.local_gen")
+
 args = parser.parse_args()
 
-#print("add saturated")
-#quit()
+
+## directies
+hostname = socket.gethostname()
+histmaker_dir_base = "/scratch/submit/cms/jaeyserm/Analysis/new/" if "mit.edu" in hostname else ""
+combine_dir_base = "/scratch/submit/cms/jaeyserm/CombineStudies/pdfMatrix/" if "mit.edu" in hostname else "/eos/experiment/fcc/users/j/jaeyserm/wmass/pdfMatrix/"
+web_dir_base = "/work/submit/jaeyserm/public_html/wmass/fits/pdfMatrix/" if "mit.edu" in hostname else "/eos/user/j/jaeyserm/public_html/wmass/pdfMatrix/"
+submit_dir_base = "submit/"
+
+
 def exe(cmd):
     if args.debug:
         print(cmd)
     else:
         os.system(cmd)
+
+def makeJob(submit_dir, run_dir, base_pdf, pseudo_pdf, pseudo_pdf_name):
+    fOutName = f"{submit_dir}/submit_{base_pdf}_{pseudo_pdf}.sh"
+    fOut = open(fOutName, "w")
+
+    fOut.write("#!/bin/bash\n")
+    fOut.write("cd /afs/cern.ch/work/j/jaeyserm/wmass/CMSSW_10_6_19_patch2/src/\n")
+    fOut.write(f"source /cvmfs/cms.cern.ch/cmsset_default.sh;export APPTAINER_BIND=\"$PWD\";cmssw-cc7 --command-to-run ./fit.sh {run_dir} {pseudo_pdf} {pseudo_pdf_name}\n")
+
+    subprocess.getstatusoutput(f"chmod 777 {fOutName}")
+    return fOutName
+
+def condor(submit_dir, execs):
+    fOutName = f'{submit_dir}/condor.cfg'
+    fOut = open(fOutName, 'w')
+
+    fOut.write(f'executable     = $(filename)\n')
+    fOut.write(f'Log            = {submit_dir}/condor_job.$(ClusterId).$(ProcId).log\n')
+    fOut.write(f'Output         = {submit_dir}/condor_job.$(ClusterId).$(ProcId).out\n')
+    fOut.write(f'Error          = {submit_dir}/condor_job.$(ClusterId).$(ProcId).error\n')
+    fOut.write(f'getenv         = True\n')
+    fOut.write(f'environment    = "LS_SUBCWD={submit_dir}"\n')
+    #fOut.write(f'requirements   = ( (OpSysAndVer =?= "CentOS7") && (Machine =!= LastRemoteHost) && (TARGET.has_avx2 =?= True) )\n')
+
+    fOut.write(f'on_exit_remove = (ExitBySignal == False) && (ExitCode == 0)\n')
+    fOut.write(f'max_retries    = 3\n')
+    fOut.write(f'+JobFlavour    = "{args.queue}"\n')
+    fOut.write(f'+AccountingGroup = "{args.condor_priority}"\n')
+
+    execsStr = ' '.join(execs) 
+    fOut.write(f'queue filename matching files {execsStr}\n')
+    fOut.close()
+
+    subprocess.getstatusoutput(f'chmod 777 {fOutName}')
+    os.system(f"condor_submit {fOutName}")
 
 if __name__ == "__main__":
 
@@ -49,18 +96,22 @@ if __name__ == "__main__":
     inflationFactor = args.inflationFactor
 
     t = str(args.inflationFactor).replace(".", "p")
-    combine_dir = f"{args.combine_dir}/{args.fitType}_infl_{t}"
-    web_dir = f"{args.web_dir}/{args.fitType}_infl_{t}"
+    combine_dir = f"{combine_dir_base}/{args.fitType}_infl_{t}"
+    web_dir = f"{web_dir_base}/{args.fitType}_infl_{t}"
+    submit_dir = f"{submit_dir_base}/{args.fitType}_infl_{t}"
 
     if args.pdfOnly:
         combine_dir += "_pdfOnly"
         web_dir += "_pdfOnly"
+        submit_dir += "_pdfOnly"
     if args.postfix:
         combine_dir += f"_{args.postfix}"
         web_dir += f"_{args.postfix}"
+        submit_dir += f"_{args.postfix}"
     if args.xsec:
         combine_dir += f"_xsec"
         web_dir += f"_xsec"
+        submit_dir += f"_xsec"
 
     if not os.path.isdir(combine_dir) and not args.skipCheckDir:
         print(f"Combine directory {combine_dir} does not exist")
@@ -71,6 +122,8 @@ if __name__ == "__main__":
 
     if not os.path.isdir(web_dir):
         os.makedirs(web_dir)
+    if not os.path.isdir(submit_dir):
+        os.makedirs(submit_dir)
 
     perms_set = set(tuple([pdf] + pdf_tags[:i] + pdf_tags[i+1:]) for i, pdf in enumerate(pdf_tags))
     pdf_perms = [list(t) for t in perms_set]
@@ -116,6 +169,7 @@ if __name__ == "__main__":
             exe(cmd)
 
     if args.mode == "fit":
+        execs = []
         for pdfs in pdf_perms:
             base_pdf = pdfs[0]
             pseudo_pdfs = pdfs
@@ -132,13 +186,19 @@ if __name__ == "__main__":
                     continue
                 working_dir = glob.glob(f"{combine_dir}/*{base_pdf}")[0]
                 scan = " --scan massShiftW100MeV_noi --scanRange 2 " if args.scan else ""
-                if args.nohup:
-                    cmd = f"nohup combinetf.py --saveHists --computeHistErrors --doImpacts --binByBinStat {working_dir}/{'WMass' if isW else 'ZMassWLike'}.hdf5 -p {pseudo_pdf_name}_pdfVar {scan} -o {working_dir}/fit_{pseudo_pdf}.root --nThreads {args.nThreads} --fitverbose 10 > {working_dir}/fit_{pseudo_pdf}.log &"
+                if args.submit:
+                    run_dir = f"{combine_dir}/WMass_eta_pt_charge_{base_pdf}/"
+                    sh = makeJob(submit_dir, run_dir, base_pdf, pseudo_pdf, pseudo_pdf_name)
+                    execs.append(sh)
                 else:
-                    cmd = f"combinetf.py --saveHists --computeHistErrors --doImpacts --binByBinStat {working_dir}/{'WMass' if isW else 'ZMassWLike'}.hdf5 -p {pseudo_pdf_name}_pdfVar {scan} -o {working_dir}/fit_{pseudo_pdf}.root --fitverbose 10"
-                #print(cmd)
-                exe(cmd)
-
+                    if args.nohup:
+                        cmd = f"nohup combinetf.py --saveHists --computeHistErrors --doImpacts --binByBinStat {working_dir}/{'WMass' if isW else 'ZMassWLike'}.hdf5 -p {pseudo_pdf_name}_pdfVar {scan} -o {working_dir}/fit_{pseudo_pdf}.root --nThreads {args.nThreads} --fitverbose 10 > {working_dir}/fit_{pseudo_pdf}.log &"
+                    else:
+                        cmd = f"combinetf.py --saveHists --computeHistErrors --doImpacts --binByBinStat {working_dir}/{'WMass' if isW else 'ZMassWLike'}.hdf5 -p {pseudo_pdf_name}_pdfVar {scan} -o {working_dir}/fit_{pseudo_pdf}.root --fitverbose 10"
+                    #print(cmd)
+                    exe(cmd)
+        if args.submit:
+            condor(submit_dir, execs)
 
     if args.mode == "fitth":
         tag = "scetlib" # scetlib minnlo
@@ -201,7 +261,6 @@ if __name__ == "__main__":
         print(t)
 
     if args.mode == "matrixh":
-        import uproot
         from utilities.io_tools import combinetf_input
 
         t = '''
@@ -510,6 +569,7 @@ if __name__ == "__main__":
     if args.mode == "check":
         import ROOT
         ROOT.gErrorIgnoreLevel = 6001
+        execs = []
         for pdfs in pdf_perms:
             base_pdf = pdfs[0]
             pseudo_pdfs = pdfs
@@ -520,7 +580,7 @@ if __name__ == "__main__":
                     working_dir = glob.glob(f"{combine_dir}/*{base_pdf}")[0]
                     fIn = ROOT.TFile(f"{working_dir}/fit_{pseudo_pdf}.root")
                     t = fIn.Get("fitresults")
-                    if t.GetEntries() == 0:
+                    if t.GetEntries() == 0: # 1 for normal scan, 32 for likelihood scan
                         #print(t.GetEntries())
                         raise
                     #t.GetEntries()
@@ -530,7 +590,13 @@ if __name__ == "__main__":
                 except Exception as e:
                     ifl = f"--inflationFactor {args.inflationFactor}" if args.inflationFactor else ''
                     print(f"python3 ../scripts/pdfMatrix.py --skipCheckDir {'--pdfOnly' if args.pdfOnly else ''} {ifl} --fitType {args.fitType} --mode fit --postfix {args.postfix} --nohup --nThreads 10 --fit_pdf_source {base_pdf} --fit_pdf_target {pseudo_pdf} &&")
-                    
+
+                    if args.resubmit:
+                        run_dir = f"{combine_dir}/WMass_eta_pt_charge_{base_pdf}/"
+                        sh = makeJob(submit_dir, run_dir, base_pdf, pseudo_pdf, pseudo_pdf_name)
+                        execs.append(sh)
+        if args.resubmit:
+            condor(submit_dir, execs)
 
     if args.mode == "gof":
         pass
