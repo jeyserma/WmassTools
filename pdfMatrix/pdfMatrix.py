@@ -35,14 +35,23 @@ parser.add_argument("--resubmit", action='store_true', help="Resubmit failed job
 parser.add_argument("--queue", type=str, help="Condor priority", choices=["espresso", "microcentury", "longlunch", "workday", "tomorrow", "testmatch", "nextweek"], default="workday")
 parser.add_argument("--condor_priority", type=str, help="Condor priority", default="group_u_FCC.local_gen")
 
+
+parser.add_argument("--copyFromCERN", type=str, default="", help='Copy directory from CERN')
+
 args = parser.parse_args()
 
 
 ## directies
 hostname = socket.gethostname()
-histmaker_dir_base = "/scratch/submit/cms/jaeyserm/Analysis/new/" if "mit.edu" in hostname else ""
-combine_dir_base = "/scratch/submit/cms/jaeyserm/CombineStudies/pdfMatrix/" if "mit.edu" in hostname else "/eos/experiment/fcc/users/j/jaeyserm/wmass/pdfMatrix/"
-web_dir_base = "/work/submit/jaeyserm/public_html/wmass/fits/pdfMatrix/" if "mit.edu" in hostname else "/eos/user/j/jaeyserm/public_html/wmass/pdfMatrix/"
+histmaker_dir_mit = "/scratch/submit/cms/jaeyserm/Analysis/new/"
+combine_dir_base_mit = "/scratch/submit/cms/jaeyserm/CombineStudies/pdfMatrix/"
+web_dir_base_mit = "/work/submit/jaeyserm/public_html/wmass/fits/pdfMatrix/"
+histmaker_dir_cern = ""
+combine_dir_base_cern = "/eos/experiment/fcc/users/j/jaeyserm/wmass/pdfMatrix/"
+web_dir_base_cern = "/eos/user/j/jaeyserm/public_html/wmass/pdfMatrix/"
+histmaker_dir_base = histmaker_dir_mit if "mit.edu" in hostname else histmaker_dir_cern
+combine_dir_base = combine_dir_base_mit if "mit.edu" in hostname else combine_dir_base_cern
+web_dir_base = web_dir_base_mit if "mit.edu" in hostname else histmaker_dir_base
 submit_dir_base = "submit/"
 
 
@@ -89,8 +98,8 @@ def condor(submit_dir, execs):
 
 if __name__ == "__main__":
 
-    pdf_tags = ["msht20", "nnpdf40", "ct18", "ct18z", "nnpdf31", "pdf4lhc21", "herapdf20", "msht20an3lo"]
-    pdf_names = ["pdfMSHT20", "pdfNNPDF40", "pdfCT18", "pdfCT18Z", "pdfNNPDF31", "pdfPDF4LHC21", "pdfHERAPDF20", "pdfMSHT20an3lo"]
+    pdf_tags = ["msht20", "msht20an3lo", "ct18", "ct18z", "nnpdf31", "nnpdf40", "pdf4lhc21", "herapdf20"]
+    pdf_names = ["pdfMSHT20", "pdfMSHT20an3lo", "pdfCT18", "pdfCT18Z", "pdfNNPDF31", "pdfNNPDF40", "pdfPDF4LHC21", "pdfHERAPDF20"]
     isW = "mw" in args.fitType
     histmaker_output = "mw_with_mu_eta_pt_scetlib_dyturboCorr" if isW else "mz_wlike_with_mu_eta_pt_scetlib_dyturboCorr"
     inflationFactor = args.inflationFactor
@@ -112,6 +121,42 @@ if __name__ == "__main__":
         combine_dir += f"_xsec"
         web_dir += f"_xsec"
         submit_dir += f"_xsec"
+
+    if args.copyFromCERN != "":
+        from concurrent.futures import ThreadPoolExecutor
+
+        server = "eospublic.cern.ch"
+        jobs = 32
+        source = f"{combine_dir_base_cern}/{args.copyFromCERN}"
+        dest = combine_dir_base_mit
+
+        cmds = ["xrdfs", server, "ls", "-l", "-R", source, ]
+
+        res = subprocess.run(cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        res.check_returncode()
+        lsfiles = str(res.stdout, 'utf-8').splitlines()
+        lsfilenames = []
+        for f in lsfiles:
+            fsplit = f.split(" ")
+            filesize = fsplit[-2]
+            filename = fsplit[-1]
+            lsfilenames.append(filename)
+
+        basedir = source.rstrip("/").split("/")[:-1]
+        basedir = "/".join(basedir)
+
+        infiles = [f"root://{server}/{f}" for f in lsfilenames]
+        outfiles = [f.replace(basedir, dest) for f in lsfilenames]
+
+        def xrdcp(files):
+            subprocess.run(["xrdcopy", "-f", files[0], files[1]])
+
+        with ThreadPoolExecutor(max_workers=jobs) as executor:
+            executor.map(xrdcp, zip(infiles,outfiles))
+        quit()
+
+
+
 
     if not os.path.isdir(combine_dir) and not args.skipCheckDir:
         print(f"Combine directory {combine_dir} does not exist")
@@ -148,7 +193,7 @@ if __name__ == "__main__":
                 continue # only msht20 as central one for agn
 
             # {args.histmaker_dir}/{histmaker_output}_{base_pdf}_symmHess.hdf5
-            cmd = f"python3 scripts/combine/setupCombine.py -i {args.histmaker_dir}/{histmaker_output}_{base_pdf}_symHess.hdf5 -o {combine_dir} --pseudoData {' '.join(pseudo_pdf_names)} -p {base_pdf} --hdf5 --scalePdf {inflationFactor} --pseudoDataAxes pdfVar "
+            cmd = f"python3 scripts/combine/setupCombine.py -i {histmaker_dir_base}/{histmaker_output}_{base_pdf}.hdf5 -o {combine_dir} --pseudoData {' '.join(pseudo_pdf_names)} -p {base_pdf} --hdf5 --scalePdf {inflationFactor} --pseudoDataAxes pdfVar "
             if "_agn" in args.fitType:
                 # --theoryAgnosticBandSize 2
                 #cmd += f" --theoryAgnostic --poiAsNoi --sparse  --noPDFandQCDtheorySystOnSignal  " # cfg0 all unc #  --doStatOnly --filterProcGroups Wmunu
@@ -184,10 +229,11 @@ if __name__ == "__main__":
                 pseudo_pdf_name = pdf_names[pdf_tags.index(pseudo_pdf)]
                 if args.fit_pdf_target and args.fit_pdf_target != pseudo_pdf:
                     continue
+                print(f"{combine_dir}/*{base_pdf}")
                 working_dir = glob.glob(f"{combine_dir}/*{base_pdf}")[0]
                 scan = " --scan massShiftW100MeV_noi --scanRange 2 " if args.scan else ""
                 if args.submit:
-                    run_dir = f"{combine_dir}/WMass_eta_pt_charge_{base_pdf}/"
+                    run_dir = f"{combine_dir}/{'WMass' if isW else 'ZMassWLike'}_eta_pt_charge_{base_pdf}/"
                     sh = makeJob(submit_dir, run_dir, base_pdf, pseudo_pdf, pseudo_pdf_name)
                     execs.append(sh)
                 else:
@@ -262,6 +308,7 @@ if __name__ == "__main__":
 
     if args.mode == "matrixh":
         from utilities.io_tools import combinetf_input
+        import ROOT
 
         t = '''
         <!DOCTYPE html>
@@ -294,44 +341,43 @@ if __name__ == "__main__":
         
         t += f"<table cellpadding=\"10px\" cellspacing=\"\">\n"
         t += f"<tr><td></td><td colspan=\"{len(pdf_tags)}\">Pseudodata &ndash; {args.postfix} &ndash; inflation {args.inflationFactor}</td></tr>\n"
-        t += f"<tr><td>Model</td><td width=\"135px\">{'</td><td>'.join([p[3:] for p in pdf_names])}</td></tr>\n"
+        row_ = "</td><td width=\"130px\">".join([p[3:] for p in pdf_names])
+        t += f"<tr><td width=\"100px\">Model</td><td width=\"130px\">{row_}</td></tr>\n"
+        #t += f"<tr><td>Model</td><td width=\"135px\">{'</td><td>'.join([p[3:] for p in pdf_names])}</td></tr>\n"
 
         for base_pdf in pdf_tags:
             n = pdf_names[pdf_tags.index(base_pdf)][3:]
             t += f"<tr><td>{n}</td>\n"
             base_pdf_name = pdf_names[pdf_tags.index(base_pdf)]
+            
             for pseudo_pdf in pdf_tags:
+                print(f"{combine_dir}/*{base_pdf}")
                 working_dir = glob.glob(f"{combine_dir}/*{base_pdf}")[0]
-                fitresult = combinetf_input.get_fitresult(f"{working_dir}/fit_{pseudo_pdf}.root")  
-                if args.xsec:
-                    pois = combinetf_input.get_poi_names(fitresult, poi_type="mu")
                 
+                fIn = ROOT.TFile(f"{working_dir}/fit_{pseudo_pdf}.root")
+                tree = fIn.Get("fitresults")
+                tree.GetEntry(0)
+                if isW:
+                    pull, unc_tot = tree.massShiftW100MeV_noi*100., tree.massShiftW100MeV_noi_err*100.
                 else:
-                    pois = combinetf_input.get_poi_names(fitresult, poi_type=None)
-                impacts, labels, _ = combinetf_input.read_impacts_poi(fitresult, True, add_total=True, poi=pois[0], normalize=False)
-                labels = list(labels)
+                    pull, unc_tot = tree.massShiftZ100MeV_noi*100., tree.massShiftZ100MeV_noi_err*100.
 
-                unc_tot = impacts[labels.index('Total')]*100.
-                unc_pdf = impacts[labels.index(base_pdf_name)]*100. # including AS +"NoAlphaS"
-                
-                pulls, constraints, pulls_prefit = combinetf_input.get_pulls_and_constraints(f"{working_dir}/fit_{pseudo_pdf}.root", [f"massShift{'W' if isW else 'Z'}100MeV"])
-                unc_tot_mw = 100.*constraints[0] ## should be equal to unc_tot
-                pull = 100.*pulls[0]
-                
-                if args.xsec:
-                    unc_pdf = unc_tot_mw # no pdf unc for xsec
-                
+                # get PDF+AS uncertainty
+                groups = fIn.Get("nuisance_group_impact_nois")
+                idx = groups.GetYaxis().FindBin(base_pdf_name) # base_pdf_name (PDF+AS), base_pdf_name+AlphaS (AS), base_pdf_name+NoAlphaS (PDF)
+                unc_pdf = groups.ProjectionY().GetBinContent(idx)*100.
+                fIn.Close()
+
                 style = "background-color: Tomato;" if abs(pull) > unc_pdf else ""
                 style += "background-color: LightGray;" if base_pdf == pseudo_pdf else ""
                 sign = "" if pull >= 0 else "&minus;"
-                
-                
+
                 f = web_dir.replace("/work/submit/jaeyserm/public_html/", "http://submit08.mit.edu/~jaeyserm/")
                 url = f"{f}/{base_pdf}/{pseudo_pdf}/"
-                t += "<td style=\"{}\"><a href=\"{}\" target=\"_blank\">{}{:.1f} &pm; {:.1f} ({:.1f})</a></td>\n".format(style, url, sign, abs(pull), unc_pdf, unc_tot_mw)
+                t += "<td style=\"{}\"><a href=\"{}\" target=\"_blank\">{}{:.1f} &pm; {:.1f} ({:.1f})</a></td>\n".format(style, url, sign, abs(pull), unc_pdf, unc_tot)
 
             t += '</tr>\n'
-        
+
         t += "</table></html>\n"
         print(t)
         with open(f"{web_dir}/table.html", "w") as tf:
@@ -339,8 +385,9 @@ if __name__ == "__main__":
 
 
     if args.mode == "summary":
-        import uproot
+        closure_pdfs = ["msht20", "msht20an3lo", "ct18", "ct18z", "nnpdf31", "nnpdf40", "pdf4lhc21"]
         from utilities.io_tools import combinetf_input
+        import ROOT
 
         t = '''
         <!DOCTYPE html>
@@ -372,55 +419,78 @@ if __name__ == "__main__":
         '''
         
         t += f"<table cellpadding=\"10px\" cellspacing=\"\">\n"
-        t += f"<tr><td></td><td colspan=\"{len(pdf_tags)}\">Pseudodata &ndash; {args.postfix} &ndash; inflation {args.inflationFactor}</td></tr>\n"
-        t += f"<tr><td>Model</td><td width=\"135px\">{'</td><td>'.join([p[3:] for p in pdf_names])}</td></tr>\n"
+        t += f"<tr><td></td><td colspan=\"{(len(pdf_tags)+1)}\">Pseudodata &ndash; {args.postfix} &ndash; summary</td></tr>\n"
+        row_ = "</td><td width=\"130px\">".join([p[3:] for p in pdf_names])
+        t += f"<tr><td width=\"100px\">Model</td><td width=\"100px\">Infl. Factor</td><td width=\"130px\">{row_}</td></tr>\n"
+
+        def check_closure(infl, base_pdf, pseudo_pdf):
+            global closure_pdfs
+            t = str(float(infl)).replace(".", "p")
+            combine_dir_ = f"{combine_dir_base}/{args.fitType}_infl_{t}"
+            if args.pdfOnly:
+                combine_dir_ += "_pdfOnly"
+            if args.postfix:
+                combine_dir_ += f"_{args.postfix}"
+            working_dir = glob.glob(f"{combine_dir_}/*{base_pdf}")[0]
+            fIn = ROOT.TFile(f"{working_dir}/fit_{pseudo_pdf}.root")
+            tree = fIn.Get("fitresults")
+            tree.GetEntry(0)
+            if isW:
+                pull, unc_tot = tree.massShiftW100MeV_noi*100., tree.massShiftW100MeV_noi_err*100.
+            else:
+                pull, unc_tot = tree.massShiftZ100MeV_noi*100., tree.massShiftZ100MeV_noi_err*100.
+
+            # get PDF+AS uncertainty
+            groups = fIn.Get("nuisance_group_impact_nois")
+            idx = groups.GetYaxis().FindBin(base_pdf_name) # base_pdf_name (PDF+AS), base_pdf_name+AlphaS (AS), base_pdf_name+NoAlphaS (PDF)
+            unc_pdf = groups.ProjectionY().GetBinContent(idx)*100.
+            fIn.Close()
+
+            if abs(pull) > unc_pdf and pseudo_pdf in closure_pdfs and infl!=5:
+                return False
+            else:
+                return [pull, unc_tot, unc_pdf]
+
 
         for base_pdf in pdf_tags:
+            infls = [1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
             n = pdf_names[pdf_tags.index(base_pdf)][3:]
             t += f"<tr><td>{n}</td>\n"
             base_pdf_name = pdf_names[pdf_tags.index(base_pdf)]
-            for pseudo_pdf in pdf_tags:
-                for infl in [1, 1.5, 2, 2.5, 3]:
-                    if infl == 1.:
-                        combine_dir_ = f"{args.combine_dir}/{args.fitType}"
+            
+            infl_ = -1
+            row_ = []
+            for infl in infls:
+                closure = True
+                row = []
+                for pseudo_pdf in pdf_tags:
+                    out = check_closure(infl, base_pdf, pseudo_pdf)
+                    if out == False and infl !=5:
+                        closure = False
+                        break
                     else:
-                        t = str(infl).replace(".", "p")
-                        combine_dir_ = f"{args.combine_dir}/{args.fitType}_infl_{t}"
+                        row.append(out)
+                if closure or infl==5:
+                    infl_ = infl
+                    row_ = row
+                    break
+            print("Closure", base_pdf, infl_)
+            t += f"<td>{infl_}</td>"
+            for i, pseudo_pdf in enumerate(pdf_tags):
+                pull, unc_tot, unc_pdf = row_[i]
+                style = "background-color: Tomato;" if abs(pull) > unc_pdf else ""
+                style += "background-color: LightGray;" if base_pdf == pseudo_pdf else ""
+                sign = "" if pull >= 0 else "&minus;"
 
-                    working_dir = glob.glob(f"{combine_dir_}/*{base_pdf}")[0]
-                    fitresult = combinetf_input.get_fitresult(f"{working_dir}/fit_{pseudo_pdf}.root")  
-                    if args.xsec:
-                        pois = combinetf_input.get_poi_names(fitresult, poi_type="mu")
-                    
-                    else:
-                        pois = combinetf_input.get_poi_names(fitresult, poi_type=None)
-                    impacts, labels, _ = combinetf_input.read_impacts_poi(fitresult, True, add_total=True, poi=pois[0], normalize=False)
-                    labels = list(labels)
-
-                    unc_tot = impacts[labels.index('Total')]*100.
-                    unc_pdf = impacts[labels.index(base_pdf_name)]*100. # including AS +"NoAlphaS"
-                    
-                    pulls, constraints, pulls_prefit = combinetf_input.get_pulls_and_constraints(f"{working_dir}/fit_{pseudo_pdf}.root", [f"massShift{'W' if isW else 'Z'}100MeV"])
-                    unc_tot_mw = 100.*constraints[0] ## should be equal to unc_tot
-                    pull = 100.*pulls[0]
-                    
-                    if args.xsec:
-                        unc_pdf = unc_tot_mw # no pdf unc for xsec
-                    
-                    style = "background-color: Tomato;" if abs(pull) > unc_pdf else ""
-                    style += "background-color: LightGray;" if base_pdf == pseudo_pdf else ""
-                    sign = "" if pull >= 0 else "&minus;"
-                    
-                
                 f = web_dir.replace("/work/submit/jaeyserm/public_html/", "http://submit08.mit.edu/~jaeyserm/")
                 url = f"{f}/{base_pdf}/{pseudo_pdf}/"
-                t += "<td style=\"{}\"><a href=\"{}\" target=\"_blank\">{}{:.1f} &pm; {:.1f} ({:.1f})</a></td>\n".format(style, url, sign, abs(pull), unc_pdf, unc_tot_mw)
+                t += "<td style=\"{}\"><a href=\"{}\" target=\"_blank\">{}{:.1f} &pm; {:.1f} ({:.1f})</a></td>\n".format(style, url, sign, abs(pull), unc_pdf, unc_tot)
 
             t += '</tr>\n'
-        
+
         t += "</table></html>\n"
         print(t)
-        with open(f"{web_dir}/table.html", "w") as tf:
+        with open(f"{web_dir_base_mit}/summary/{args.postfix}{ '_pdfOnly' if args.pdfOnly else ''}_{args.fitType}.html", "w") as tf:
             tf.write(t)
 
 
@@ -469,7 +539,6 @@ if __name__ == "__main__":
         print(t)
 
     if args.mode == "matrixext":
-        import uproot
         import numpy as np
         from utilities.io_tools import combinetf_input
 
@@ -589,7 +658,7 @@ if __name__ == "__main__":
                     #    pass
                 except Exception as e:
                     ifl = f"--inflationFactor {args.inflationFactor}" if args.inflationFactor else ''
-                    print(f"python3 ../scripts/pdfMatrix.py --skipCheckDir {'--pdfOnly' if args.pdfOnly else ''} {ifl} --fitType {args.fitType} --mode fit --postfix {args.postfix} --nohup --nThreads 10 --fit_pdf_source {base_pdf} --fit_pdf_target {pseudo_pdf} &&")
+                    print(f"python3 ../scripts/pdfMatrix.py --skipCheckDir {'--pdfOnly' if args.pdfOnly else ''} {ifl} --fitType {args.fitType} --mode fit --postfix {args.postfix} --nohup --nThreads 1 --fit_pdf_source {base_pdf} --fit_pdf_target {pseudo_pdf} &&")
 
                     if args.resubmit:
                         run_dir = f"{combine_dir}/WMass_eta_pt_charge_{base_pdf}/"

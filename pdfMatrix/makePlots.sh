@@ -1,0 +1,41 @@
+#!/bin/bash
+
+histmaker_dir="/scratch/submit/cms/jaeyserm/Analysis/new/"
+web_dir="/work/submit/jaeyserm/public_html/wmass/pdfMatrix/"
+
+########## ptll-yll plots
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_dilepton_scetlib_dyturboCorr_nnpdf40.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/ptll_yll/ --hists ptll yll --yscale '1.4' --baseName nominal variation --varName 'pdfNNPDF40' 'pdfNNPDF40' 'pdfNNPDF40alphaS001' 'pdfNNPDF40alphaS001' --selectEntries 'pdfNNPDF40Up' 'pdfNNPDF40Down' 'as0117' 'as0119' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.001)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_dilepton_scetlib_dyturboCorr_nnpdf31.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/ptll_yll/ --hists ptll yll --yscale '1.4' --baseName nominal variation --varName 'pdfNNPDF31' 'pdfNNPDF31' 'pdfNNPDF31alphaS002' 'pdfNNPDF31alphaS002' --selectEntries 'pdfNNPDF31Up' 'pdfNNPDF31Down' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_dilepton_scetlib_dyturboCorr_msht20.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/ptll_yll/ --hists ptll yll --yscale '1.4' --baseName nominal variation --varName 'pdfMSHT20' 'pdfMSHT20' 'pdfMSHT20alphaS002' 'pdfMSHT20alphaS002' --selectEntries 'pdfMSHT20Up' 'pdfMSHT20Down' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_dilepton_scetlib_dyturboCorr_msht20an3lo.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/ptll_yll/ --hists ptll yll --yscale '1.4' --baseName nominal variation --varName 'pdfMSHT20an3lo' 'pdfMSHT20an3lo' 'pdfMSHT20an3loalphaS002' 'pdfMSHT20an3loalphaS002' --selectEntries 'pdfMSHT20an3loUp' 'pdfMSHT20an3loDown' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_dilepton_scetlib_dyturboCorr_ct18.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/ptll_yll/ --hists ptll yll --yscale '1.4' --baseName nominal variation --varName 'pdfCT18' 'pdfCT18' 'pdfCT18alphaS002' 'pdfCT18alphaS002' --selectEntries 'pdfCT18Up' 'pdfCT18Down' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_dilepton_scetlib_dyturboCorr_ct18z.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/ptll_yll/ --hists ptll yll --yscale '1.4' --baseName nominal variation --varName 'pdfCT18Z' 'pdfCT18Z' 'pdfCT18ZalphaS002' 'pdfCT18ZalphaS002' --selectEntries 'pdfCT18ZUp' 'pdfCT18ZDown' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_dilepton_scetlib_dyturboCorr_herapdf20.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/ptll_yll/ --hists ptll yll --yscale '1.4' --baseName nominal variation --varName 'pdfHERAPDF20' 'pdfHERAPDF20' 'pdfHERAPDF20alphaS002' 'pdfHERAPDF20alphaS002' --selectEntries 'pdfHERAPDF20Up' 'pdfHERAPDF20Down' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_dilepton_scetlib_dyturboCorr_pdf4lhc21.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/ptll_yll/ --hists ptll yll --yscale '1.4' --baseName nominal variation --varName 'pdfPDF4LHC21' 'pdfPDF4LHC21' 'pdfPDF4LHC21alphaS001' 'pdfPDF4LHC21alphaS001' --selectEntries 'pdfPDF4LHC21Up' 'pdfPDF4LHC21Down' 'as0117' 'as0119' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.001)' '' --colors 'blue' 'blue' 'red' 'red'
+
+
+
+
+########## wlike plots
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_wlike_scetlib_dyturboCorr_nnpdf40.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/wlike/ --hists pt eta 'pt-eta' --yscale '1.4' --baseName nominal variation --varName 'pdfNNPDF40' 'pdfNNPDF40' 'pdfNNPDF40alphaS001' 'pdfNNPDF40alphaS001' --selectEntries 'pdfNNPDF40Up' 'pdfNNPDF40Down' 'as0117' 'as0119' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.001)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_wlike_scetlib_dyturboCorr_nnpdf31.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/wlike/ --hists pt eta 'pt-eta' --yscale '1.4' --baseName nominal variation --varName 'pdfNNPDF31' 'pdfNNPDF31' 'pdfNNPDF31alphaS002' 'pdfNNPDF31alphaS002' --selectEntries 'pdfNNPDF31Up' 'pdfNNPDF31Down' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_wlike_scetlib_dyturboCorr_msht20.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/wlike/ --hists pt eta 'pt-eta' --yscale '1.4' --baseName nominal variation --varName 'pdfMSHT20' 'pdfMSHT20' 'pdfMSHT20alphaS002' 'pdfMSHT20alphaS002' --selectEntries 'pdfMSHT20Up' 'pdfMSHT20Down' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_wlike_scetlib_dyturboCorr_msht20an3lo.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/wlike/ --hists pt eta 'pt-eta' --yscale '1.4' --baseName nominal variation --varName 'pdfMSHT20an3lo' 'pdfMSHT20an3lo' 'pdfMSHT20an3loalphaS002' 'pdfMSHT20an3loalphaS002' --selectEntries 'pdfMSHT20an3loUp' 'pdfMSHT20an3loDown' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_wlike_scetlib_dyturboCorr_ct18.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/wlike/ --hists pt eta 'pt-eta' --yscale '1.4' --baseName nominal variation --varName 'pdfCT18' 'pdfCT18' 'pdfCT18alphaS002' 'pdfCT18alphaS002' --selectEntries 'pdfCT18Up' 'pdfCT18Down' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_wlike_scetlib_dyturboCorr_ct18z.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/wlike/ --hists pt eta 'pt-eta' --yscale '1.4' --baseName nominal variation --varName 'pdfCT18Z' 'pdfCT18Z' 'pdfCT18ZalphaS002' 'pdfCT18ZalphaS002' --selectEntries 'pdfCT18ZUp' 'pdfCT18ZDown' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_wlike_scetlib_dyturboCorr_herapdf20.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/wlike/ --hists pt eta 'pt-eta' --yscale '1.4' --baseName nominal variation --varName 'pdfHERAPDF20' 'pdfHERAPDF20' 'pdfHERAPDF20alphaS002' 'pdfHERAPDF20alphaS002' --selectEntries 'pdfHERAPDF20Up' 'pdfHERAPDF20Down' 'as0116' 'as0120' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.002)' '' --colors 'blue' 'blue' 'red' 'red'
+
+python scripts/plotting/makeDataMCStackPlot.py $histmaker_dir/mz_wlike_scetlib_dyturboCorr_pdf4lhc21.hdf5 -f '' -r '0.9' '1.1' -o $web_dir/wlike/ --hists pt eta 'pt-eta' --yscale '1.4' --baseName nominal variation --varName 'pdfPDF4LHC21' 'pdfPDF4LHC21' 'pdfPDF4LHC21alphaS001' 'pdfPDF4LHC21alphaS001' --selectEntries 'pdfPDF4LHC21Up' 'pdfPDF4LHC21Down' 'as0117' 'as0119' --selectAxis pdfVars pdfVars alphasVar alphasVar --varLabel 'PDF Unc.' '' 'AlphaS Unc. (0.001)' '' --colors 'blue' 'blue' 'red' 'red'

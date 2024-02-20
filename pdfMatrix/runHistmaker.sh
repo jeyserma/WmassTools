@@ -9,24 +9,24 @@
 #python3 scripts/histmakers/mw_with_mu_eta_pt.py  --pdf msht20an3lo msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 -o /scratch/submit/cms/jaeyserm/Analysis/ --theoryAgnostic --poiAsNoi -p msht20an3lo
 
 
-python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p ct18z_symHess
-python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p msht20_symHess
-python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p nnpdf40_symHess
-python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p ct18_symHess
-python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p nnpdf31_symHess
-python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p pdf4lhc21_symHess
-python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p herapdf20_symHess
-python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p msht20an3lo_symHess
+#python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p ct18z_symHess
+#python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p msht20_symHess
+#python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p nnpdf40_symHess
+#python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p ct18_symHess
+#python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p nnpdf31_symHess
+#python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p pdf4lhc21_symHess
+#python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p herapdf20_symHess
+#python3 scripts/histmakers/mw_with_mu_eta_pt.py --pdf msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p msht20an3lo_symHess
 
 
-#python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p ct18z
-#python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p msht20
-#python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p nnpdf40
-#python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p ct18
-#python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p nnpdf31
-#python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p pdf4lhc21
-#python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p herapdf20
-#python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p msht20an3lo
+python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p ct18z_symHess
+python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p msht20_symHess
+python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p nnpdf40_symHess
+python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p ct18_symHess
+python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf nnpdf31 pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p nnpdf31_symHess
+python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf pdf4lhc21 herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p pdf4lhc21_symHess
+python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf herapdf20 msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p herapdf20_symHess
+python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py --pdf msht20an3lo ct18z msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 -o /scratch/submit/cms/jaeyserm/Analysis/new/ -p msht20an3lo_symHess
 
 #python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py  --pdf msht20 nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo -o /scratch/submit/cms/jaeyserm/Analysis/ -p msht20
 #python3 scripts/histmakers/mz_wlike_with_mu_eta_pt.py  --pdf nnpdf40 ct18 nnpdf31 pdf4lhc21 herapdf20 msht20an3lo msht20 -o /scratch/submit/cms/jaeyserm/Analysis/ -p nnpdf40

@@ -1,23 +1,23 @@
 #!/bin/bash
 
-pf="symQuadr"
+mode="wlike"
+pf="symNone"
 
 
-python ../scripts/pdfMatrix.py --skipCheckDir --pdfOnly --fitType mw --mode check --postfix $pf
-python ../scripts/pdfMatrix.py --skipCheckDir --pdfOnly --fitType mw --mode check --postfix $pf --inflationFactor 1.5
-python ../scripts/pdfMatrix.py --skipCheckDir --pdfOnly --fitType mw --mode check --postfix $pf --inflationFactor 2
-python ../scripts/pdfMatrix.py --skipCheckDir --pdfOnly --fitType mw --mode check --postfix $pf --inflationFactor 2.5
-python ../scripts/pdfMatrix.py --skipCheckDir --pdfOnly --fitType mw --mode check --postfix $pf --inflationFactor 3
-python ../scripts/pdfMatrix.py --skipCheckDir --pdfOnly --fitType mw --mode check --postfix $pf --inflationFactor 4
-python ../scripts/pdfMatrix.py --skipCheckDir --pdfOnly --fitType mw --mode check --postfix $pf --inflationFactor 5
 
-#python ../scripts/pdfMatrix.py --skipCheckDir --fitType mw --mode check --postfix $pf 
-#python ../scripts/pdfMatrix.py --skipCheckDir --fitType mw --mode check --postfix $pf --inflationFactor 1.5
-#python ../scripts/pdfMatrix.py --skipCheckDir --fitType mw --mode check --postfix $pf --inflationFactor 2
-#python ../scripts/pdfMatrix.py --skipCheckDir --fitType mw --mode check --postfix $pf --inflationFactor 2.5
-#python ../scripts/pdfMatrix.py --skipCheckDir --fitType mw --mode check --postfix $pf --inflationFactor 3
-#python ../scripts/pdfMatrix.py --skipCheckDir --fitType mw --mode check --postfix $pf --inflationFactor 4
-#python ../scripts/pdfMatrix.py --skipCheckDir --fitType mw --mode check --postfix $pf --inflationFactor 5
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --pdfOnly --fitType $mode --mode check --postfix $pf --inflationFactor 1.0
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --pdfOnly --fitType $mode --mode check --postfix $pf --inflationFactor 1.5
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --pdfOnly --fitType $mode --mode check --postfix $pf --inflationFactor 2
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --pdfOnly --fitType $mode --mode check --postfix $pf --inflationFactor 2.5
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --pdfOnly --fitType $mode --mode check --postfix $pf --inflationFactor 3
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --pdfOnly --fitType $mode --mode check --postfix $pf --inflationFactor 4
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --pdfOnly --fitType $mode --mode check --postfix $pf --inflationFactor 5
 
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --fitType $mode --mode check --postfix $pf --inflationFactor 1.0
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --fitType $mode --mode check --postfix $pf --inflationFactor 1.5
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --fitType $mode --mode check --postfix $pf --inflationFactor 2
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --fitType $mode --mode check --postfix $pf --inflationFactor 2.5
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --fitType $mode --mode check --postfix $pf --inflationFactor 3
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --fitType $mode --mode check --postfix $pf --inflationFactor 4
+python3 ../WmassTools/pdfMatrix/pdfMatrix.py --skipCheckDir --fitType $mode --mode check --postfix $pf --inflationFactor 5
 
- 
